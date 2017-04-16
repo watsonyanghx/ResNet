@@ -1,0 +1,5 @@
+/home/.../cifar10/train/23388.png
+/home/.../cifar10/train/13988.png
+/home/.../cifar10/train/663.png
+...
+/home/.../cifar10/train/3344.png
