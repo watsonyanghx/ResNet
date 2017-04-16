@@ -104,12 +104,12 @@ ls -R
   data  resnet
 
   ./data:
-  train  test  X_train.txt  X_val.txt  y_train.txt  y_val.txt  test.txt
+  train  infer  X_train.txt  X_val.txt  y_train.txt  y_val.txt  test.txt
 
   ./data/train:
   1.png  2.png  ...  50000.png
 
-  ./data/test:
+  ./data/infer:
   1.png  2.png  ...  300000.png
 
   ./resnet:
