@@ -56,7 +56,7 @@ If you want to apply this code to your own dataset, make sure bellow requirement
 
 
 
-**Note:** Change the code bellow in resnet_main.py based on your own setting.
+**Note:** Change the code bellow in [resnet_main.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_main.py) based on your own setting.
 
 ```shell
  # Change values bellow based on your own setting.
