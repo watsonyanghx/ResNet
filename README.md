@@ -1,6 +1,6 @@
 ## ResNet (Deep Residual Networks) in TensorFlow
 
-Modified from [tensorflow/models/resnet](https://github.com/tensorflow/models/tree/master/resnet), so that it can be applied to any dataset composed of raw images. 
+Modified from [tensorflow/models/resnet](https://github.com/tensorflow/models/tree/master/resnet), so that the code can be applied to any dataset composed of raw images. 
 
 You can easily apply this code to your own dataset, as long as some certain requirements are met. See [Dataset](https://github.com/watsonyanghx/ResNet_TensorFlow#dataset) for more datails.
 
@@ -16,7 +16,7 @@ You can easily apply this code to your own dataset, as long as some certain requ
 
 ### Dataset
 
-If you want to apply this code to your own dataset, make sure bellow requirements are met.
+If you want to apply this code to your own dataset, make sure bellow requirements for files are met.
 
 - X_train.txt: Each line containing a path to an image for training.
 
@@ -43,13 +43,12 @@ If you want to apply this code to your own dataset, make sure bellow requirement
 > 
 >   - Finally, the score given by this competition is taken as a measure of generalization ability of the trained model. 
 > 
-> Note that although there 30k examples in test dataset, the score are judged only by the 10k examples from cifar-10 dataset.
 
 
 ### Settings
 
 * Random split training set into train/eval split.
-* Pad to 36x36 and random crop. Horizontal flip. Per-image whitenting. 
+* Pad and random crop. Horizontal flip. Per-image whitenting. 
 * Momentum optimizer 0.9.
 * Learning rate schedule: 0.1 (40k), 0.01 (60k), 0.001 (>60k).
 * L2 weight decay: 0.002.
@@ -85,12 +84,6 @@ I got about 92% accracy after about 40k training steps in the competition.
 ### Prerequisite
 
 1. Install TensorFlow.
-
-2. Download CIFAR-10 dataset.
-
-```shell
-https://www.kaggle.com/c/cifar-10/data
-```
 
 
 ### How to run
