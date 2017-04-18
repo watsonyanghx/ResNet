@@ -2,7 +2,7 @@
 
 This code is modified from [tensorflow/models/resnet](https://github.com/tensorflow/models/tree/master/resnet), so that it can be applied to dataset composed of raw images instead of binary format. 
 
-The network architecture is designed for cifar-10/cifar-100 dataset, If you want to apply it to your own dataset, you may need to modify network architecture and hyperparameters. See [Dataset](#dataset) for more datails.
+This network architecture is designed for cifar-10/cifar-100 dataset. If you want to apply it to your own dataset, you may need to modify network architecture as well as hyperparameters. See [Dataset](#dataset) for more datails.
 
 
 ### Related papers
