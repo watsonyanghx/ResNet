@@ -1,8 +1,8 @@
 ## ResNet (Deep Residual Networks) in TensorFlow
 
-Modified from [tensorflow/models/resnet](https://github.com/tensorflow/models/tree/master/resnet), so that the code can be applied to any dataset composed of raw images. 
+This code is modified from [tensorflow/models/resnet](https://github.com/tensorflow/models/tree/master/resnet), so that it can be applied to dataset composed of raw images instead of binary format. 
 
-You can easily apply this code to your own dataset, as long as some certain requirements are met. See [Dataset](https://github.com/watsonyanghx/ResNet_TensorFlow#dataset) for more datails.
+The network architecture is designed for cifar-10/cifar-100 dataset, If you want to apply it to your own dataset, you may need to modify the architecture. See [Dataset](#dataset) for more datails.
 
 
 ### Related papers
@@ -31,9 +31,9 @@ If you want to apply this code to your own dataset, make sure bellow requirement
 - test.txt: Each line containing a path to an image for test.
 &nbsp;
 
-**You may find it help to have a look at these files in this repo.**
+**You may find it help to have a look at these files in [data](https://github.com/watsonyanghx/ResNet_TensorFlow/tree/master/data) folder.**
 
-> As mentioned, I used this code for Kaggle competition [CIFAR-10 - Object Recognition in Images | Kaggle](https://www.kaggle.com/c/cifar-10/data).
+> I used this code for Kaggle competition [CIFAR-10 - Object Recognition in Images | Kaggle](https://www.kaggle.com/c/cifar-10/data).
 >
 > Instead of using [Official CIFAR-10 Dataset](https://www.cs.toronto.edu/~kriz/cifar.html), the dataset from [CIFAR-10 - Object Recognition in Images | Kaggle](https://www.kaggle.com/c/cifar-10/data) is used.
 > 
@@ -43,6 +43,7 @@ If you want to apply this code to your own dataset, make sure bellow requirement
 > 
 >   - Finally, the score given by this competition is taken as a measure of generalization ability of the trained model. 
 > 
+> I got about 92% accracy after about 40k training steps in the competition.
 
 
 ### Settings
@@ -78,7 +79,7 @@ If you want to apply this code to your own dataset, make sure bellow requirement
 
 For more performance specifications, please visit [tensorflow/models/resnet](https://github.com/tensorflow/models/tree/master/resnet).
 
-I got about 92% accracy after about 40k training steps in the competition.
+As mentioned, about 92% test accracy is achieved after about 40k training steps in [CIFAR-10 - Object Recognition in Images | Kaggle](https://www.kaggle.com/c/cifar-10/data).
 
 
 ### Prerequisite
