@@ -2,7 +2,7 @@
 
 This code is modified from [tensorflow/models/resnet](https://github.com/tensorflow/models/tree/master/resnet), so that it can be applied to dataset composed of raw images instead of binary format. 
 
-The network architecture is designed for cifar-10/cifar-100 dataset, If you want to apply it to your own dataset, you may need to modify the architecture. See [Dataset](#dataset) for more datails.
+The network architecture is designed for cifar-10/cifar-100 dataset, If you want to apply it to your own dataset, you may need to modify network architecture and hyperparameters. See [Dataset](#dataset) for more datails.
 
 
 ### Related papers
@@ -28,8 +28,10 @@ If you want to apply this code to your own dataset, make sure bellow requirement
 - y_val.txt (optional): Each line containing a label for corresponding example in X_val.txt.
 &nbsp;
 
-- test.txt: Each line containing a path to an image for test.
+- infer.txt: Each line containing a path to an image for test.
 &nbsp;
+
+If you have dataset for testing, it's the same as validation process.
 
 **You may find it help to have a look at these files in [data](https://github.com/watsonyanghx/ResNet_TensorFlow/tree/master/data) folder.**
 
@@ -43,7 +45,7 @@ If you want to apply this code to your own dataset, make sure bellow requirement
 > 
 >   - Finally, the score given by this competition is taken as a measure of generalization ability of the trained model. 
 > 
-> I got about 92% accracy after about 40k training steps in the competition.
+> Finally, I got about 92% accracy after about 40k training steps in the competition.
 
 
 ### Settings
