@@ -59,7 +59,7 @@ If you have dataset for testing, it's the same as validation process.
 
 
 
-**Note:** Change the code bellow in [resnet_main.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_main.py) based on your own setting.
+**Note:** Change the code bellow in [resnet_main.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_main.py#L241) based on your own setting.
 
 ```shell
  # Change values bellow based on your own setting.
