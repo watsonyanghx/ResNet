@@ -240,9 +240,9 @@ def main(_):
         raise ValueError('Only support 0 or 1 gpu.')
 
     if FLAGS.mode == 'train':
-        batch_size = 32
+        batch_size = 128
     elif FLAGS.mode == 'eval':
-        batch_size = 50
+        batch_size = 100
     elif FLAGS.mode == 'infer':
         batch_size = 100
 
