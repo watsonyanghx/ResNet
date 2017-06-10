@@ -58,23 +58,51 @@ If you have dataset for testing, it's the same as validation process.
 * Batch size: 128. (28-10 wide and 1001 layer bottleneck use 64)
 
 
-
 **Note:** Change the code bellow in [resnet_main.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_main.py#L241) based on your own setting.
 
 ```shell
- # Change values bellow based on your own setting.
-  hps = resnet_model.HParams(batch_size=batch_size,
-                              image_size=32,
-                              depth=3,
-                              num_classes=10,
-                              min_lrn_rate=0.0001,
-                              lrn_rate=0.1,
-                              num_residual_units=5,
-                              use_bottleneck=False,
-                              weight_decay_rate=0.0002,
-                              relu_leakiness=0.1,
-                              optimizer='mom')
+# Change values bellow based on your own setting.
+hps = resnet_model.HParams(batch_size=batch_size,
+                            image_size=32,
+                            depth=3,
+                            num_classes=10,
+                            min_lrn_rate=0.0001,
+                            lrn_rate=0.1,
+                            num_residual_units=5,
+                            use_bottleneck=False,
+                            weight_decay_rate=0.0002,
+                            relu_leakiness=0.1,
+                            optimizer='mom')
 ```
+
+
+**Update:** Transfer learning is supported.
+
+1. Fine-tune the whole net.
+  
+  Uncomment the code bellow in [resnet_main.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_main.py#L123) to fine-tune the whole net.
+
+  ```shell
+  # saver.restore(mon_sess, './tmp/resnet_model/model.ckpt-40960')
+  ```
+
+2. Fine-tune the last few layers.
+
+  Modify `exclude` in [resnet_model.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_model.py#L117) to fine-tune the layers you want.
+
+  ```shell
+  if self.hps.fine_tune:
+      exclude = ['logit']
+      variables_to_train = []
+      for scope in exclude:
+          variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope)
+          variables_to_train.extend(variables)
+
+      trainable_variables = variables_to_train
+  else:
+      trainable_variables = tf.trainable_variables()
+
+  ```
 
 
 ### Results

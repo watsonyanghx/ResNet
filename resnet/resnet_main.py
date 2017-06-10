@@ -56,6 +56,10 @@ def train(hps, X_train, y_train):
     model = resnet_model.ResNet(hps, images, labels, FLAGS.mode)
     model.build_graph()
 
+    # Must right after model is established
+    exclude = ['logit']
+    variables_to_restore = tf.contrib.framework.get_variables_to_restore(exclude=exclude)
+
     # param_stats = tf.contrib.tfprof.model_analyzer.print_model_analysis(
     #     tf.get_default_graph(),
     #     tfprof_options=tf.contrib.tfprof.model_analyzer.
@@ -74,44 +78,50 @@ def train(hps, X_train, y_train):
         save_steps=100,
         output_dir=FLAGS.train_dir,
         summary_op=tf.summary.merge([model.summaries,
-                                    tf.summary.scalar('Precision', precision)]))
+                                     tf.summary.scalar('Precision', precision)]))
 
     logging_hook = tf.train.LoggingTensorHook(
         tensors={'step': model.global_step,
-                'loss': model.cost,
-                'precision': precision},
+                 'loss': model.cost,
+                 'precision': precision},
         every_n_iter=100)
 
     class _LearningRateSetterHook(tf.train.SessionRunHook):
-      """Sets learning_rate based on global step."""
+        """Sets learning_rate based on global step."""
 
-      def begin(self):
-          self._lrn_rate = 0.1
+        def begin(self):
+            self._lrn_rate = 0.01
 
-      def before_run(self, run_context):
-          return tf.train.SessionRunArgs(
-              model.global_step,  # Asks for global step value.
-              feed_dict={model.lrn_rate: self._lrn_rate})  # Sets learning rate
+        def before_run(self, run_context):
+            return tf.train.SessionRunArgs(
+                model.global_step,  # Asks for global step value.
+                feed_dict={model.lrn_rate: self._lrn_rate})  # Sets learning rate
 
-      def after_run(self, run_context, run_values):
-          train_step = run_values.results
-          if train_step < 40000:
-              self._lrn_rate = 0.1
-          elif train_step < 60000:
-              self._lrn_rate = 0.01
-          elif train_step < 80000:
-              self._lrn_rate = 0.001
-          else:
-              self._lrn_rate = 0.0001
+        def after_run(self, run_context, run_values):
+            train_step = run_values.results
+            if train_step < 40000:
+                self._lrn_rate = 0.1
+            elif train_step < 60000:
+                self._lrn_rate = 0.01
+            elif train_step < 100000:
+                self._lrn_rate = 0.001
+            else:
+                self._lrn_rate = 0.001
+
+    saver = tf.train.Saver(variables_to_restore)
 
     with tf.train.MonitoredTrainingSession(
-        checkpoint_dir=FLAGS.log_root,
-        hooks=[logging_hook, _LearningRateSetterHook()],
-        chief_only_hooks=[summary_hook],
-        # Since we provide a SummarySaverHook, we need to disable default
-        # SummarySaverHook. To do that we set save_summaries_steps to 0.
-        save_summaries_steps=0,
-        config=tf.ConfigProto(allow_soft_placement=True)) as mon_sess:
+            checkpoint_dir=FLAGS.log_root,
+            hooks=[logging_hook, _LearningRateSetterHook()],
+            chief_only_hooks=[summary_hook],
+            save_checkpoint_secs=60,
+            # Since we provide a SummarySaverHook, we need to disable default
+            # SummarySaverHook. To do that we set save_summaries_steps to 0.
+            save_summaries_steps=0,
+            config=tf.ConfigProto(allow_soft_placement=True)) as mon_sess:
+
+        # saver.restore(mon_sess, '/home/yang/Downloads/FILE/ml/ic/tmp/resnet_model/model.ckpt-40960')
+
         while not mon_sess.should_stop():
             mon_sess.run(model.train_op)
 
@@ -128,7 +138,7 @@ def evaluate(hps, X_val, y_val):
 
     model = resnet_model.ResNet(hps, images, labels, FLAGS.mode)
     model.build_graph()
-    
+
     saver = tf.train.Saver()
     summary_writer = tf.summary.FileWriter(FLAGS.eval_dir)
 
@@ -146,13 +156,14 @@ def evaluate(hps, X_val, y_val):
             tf.logging.info('No model to eval yet at %s', FLAGS.log_root)
             continue
         tf.logging.info('Loading checkpoint %s', ckpt_state.model_checkpoint_path)
+
         saver.restore(sess, ckpt_state.model_checkpoint_path)
 
         total_prediction, correct_prediction = 0, 0
         for _ in six.moves.range(FLAGS.eval_batch_count):
             (summaries, loss, predictions, truth, train_step) = sess.run(
                 [model.summaries, model.cost, model.predictions,
-                model.labels, model.global_step])
+                 model.labels, model.global_step])
 
             truth = np.argmax(truth, axis=1)
             predictions = np.argmax(predictions, axis=1)
@@ -176,11 +187,11 @@ def evaluate(hps, X_val, y_val):
         if FLAGS.eval_once:
             break
 
-        time.sleep(60)
+        time.sleep(10)
 
 
 def infer(hps, X_infer, y_infer):
-    '''Infering process
+    """Infering process
 
     Args:
         hps: Hyperparameters.
@@ -189,13 +200,13 @@ def infer(hps, X_infer, y_infer):
                  Note that there is no labels when infering, so 'y_infer' is never used
                  in infering process, but working as a placeholder because of the requirement
                  that labels must be provided to build model.
-    '''
+    """
 
     images, labels = cifar_input.build_infer_input(X_infer, y_infer, hps)
-    
+
     model = resnet_model.ResNet(hps, images, labels, FLAGS.mode)
     model.build_graph()
-    
+
     saver = tf.train.Saver()
 
     sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
@@ -220,8 +231,6 @@ def infer(hps, X_infer, y_infer):
                 f.write(str(item) + '\n')
 
 
-
-
 def main(_):
     if FLAGS.num_gpus == 0:
         dev = '/cpu:0'
@@ -231,34 +240,37 @@ def main(_):
         raise ValueError('Only support 0 or 1 gpu.')
 
     if FLAGS.mode == 'train':
-        batch_size = 128
+        batch_size = 32
     elif FLAGS.mode == 'eval':
-        batch_size = 100
+        batch_size = 50
     elif FLAGS.mode == 'infer':
         batch_size = 100
 
     # Change values bellow based on your own setting.
     hps = resnet_model.HParams(batch_size=batch_size,
-                               image_size=32,
+                               image_size=128,
                                depth=3,
-                               num_classes=10,
-                               min_lrn_rate=0.0001,
-                               lrn_rate=0.1,
+                               num_classes=12,
+                               min_lrn_rate=0.00001,
+                               lrn_rate=0.01,
                                num_residual_units=5,
                                use_bottleneck=False,
-                               weight_decay_rate=0.0002,
+                               weight_decay_rate=0.004,
                                relu_leakiness=0.1,
-                               optimizer='mom')
+                               optimizer='mom',
+                               fine_tune=False)
 
     with tf.device(dev):
         if FLAGS.mode == 'train':
             X_train = helper.load_data(FLAGS.train_data_path)
             y_train = helper.load_data(FLAGS.train_labels_path)
-            
+            y_train = y_train - 1
+
             train(hps, X_train, y_train)
         elif FLAGS.mode == 'eval':
             X_val = helper.load_data(FLAGS.eval_data_path)
             y_val = helper.load_data(FLAGS.eval_labels_path)
+            y_val = y_val - 1
 
             evaluate(hps, X_val, y_val)
         elif FLAGS.mode == 'infer':

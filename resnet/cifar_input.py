@@ -25,9 +25,6 @@ def build_input(X, y, hps, mode):
         images: Batches of images. [batch_size, image_size, image_size, 3]
         labels: Batches of labels. [batch_size, num_classes]
     """
-    # image_size = 32
-    # num_classes = 10
-    # depth = 3
     batch_size = hps.batch_size
     image_size = hps.image_size
     depth = hps.depth
@@ -41,7 +38,10 @@ def build_input(X, y, hps, mode):
     input_queue = tf.train.slice_input_producer([X, y], shuffle=True)
     
     image = tf.read_file(input_queue[0])
-    image = tf.image.decode_png(image, channels=3)
+    image = tf.image.decode_jpeg(image, channels=3)
+    image = tf.image.resize_images(image, [image_size, image_size])
+    # image = tf.cast(image, tf.uint8)
+
     label = tf.reshape(input_queue[1], [1])
 
     if mode == 'train':
@@ -49,9 +49,9 @@ def build_input(X, y, hps, mode):
         image = tf.random_crop(image, [image_size, image_size, 3])
         image = tf.image.random_flip_left_right(image)
         # Brightness/saturation/constrast provides small gains .2%~.5% on cifar.
-        # image = tf.image.random_brightness(image, max_delta=63. / 255.)
-        # image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
-        # image = tf.image.random_contrast(image, lower=0.2, upper=1.8)
+        image = tf.image.random_brightness(image, max_delta=63. / 255.)
+        image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
+        image = tf.image.random_contrast(image, lower=0.2, upper=1.8)
         image = tf.image.per_image_standardization(image)
 
         example_queue = tf.RandomShuffleQueue(
@@ -126,7 +126,7 @@ def build_infer_input(X, y, hps):
     input_queue = tf.train.slice_input_producer([X, y], shuffle=False)
     
     image = tf.read_file(input_queue[0])
-    image = tf.image.decode_png(image, channels=3)
+    image = tf.image.decode_jpeg(image, channels=3)
     label = tf.reshape(input_queue[1], [1])
 
 
