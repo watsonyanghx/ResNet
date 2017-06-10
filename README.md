@@ -79,30 +79,29 @@ hps = resnet_model.HParams(batch_size=batch_size,
 **Update:** Transfer learning is supported.
 
 1. Fine-tune the whole net.
-  
-  Uncomment the code bellow in [resnet_main.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_main.py#L123) to fine-tune the whole net.
+    
+    Uncomment the code bellow in [resnet_main.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_main.py#L123) to fine-tune the whole net.
 
-  ```shell
-  # saver.restore(mon_sess, './tmp/resnet_model/model.ckpt-40960')
-  ```
+    ```shell
+    # saver.restore(mon_sess, './tmp/resnet_model/model.ckpt-40960')
+    ```
 
 2. Fine-tune the last few layers.
+    
+    Modify `exclude` in [resnet_model.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_model.py#L117) to fine-tune the layers you want.
 
-  Modify `exclude` in [resnet_model.py](https://github.com/watsonyanghx/ResNet_TensorFlow/blob/master/resnet/resnet_model.py#L117) to fine-tune the layers you want.
-
-  ```shell
-  if self.hps.fine_tune:
-      exclude = ['logit']
-      variables_to_train = []
-      for scope in exclude:
-          variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope)
-          variables_to_train.extend(variables)
-
-      trainable_variables = variables_to_train
-  else:
-      trainable_variables = tf.trainable_variables()
-
-  ```
+    ```shell
+    if self.hps.fine_tune:
+        exclude = ['logit']
+        variables_to_train = []
+        for scope in exclude:
+            variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope)
+            variables_to_train.extend(variables)
+  
+        trainable_variables = variables_to_train
+    else:
+        trainable_variables = tf.trainable_variables()
+    ```
 
 
 ### Results
