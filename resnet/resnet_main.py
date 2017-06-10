@@ -248,10 +248,10 @@ def main(_):
 
     # Change values bellow based on your own setting.
     hps = resnet_model.HParams(batch_size=batch_size,
-                               image_size=128,
+                               image_size=32,
                                depth=3,
-                               num_classes=12,
-                               min_lrn_rate=0.00001,
+                               num_classes=10,
+                               min_lrn_rate=0.0001,
                                lrn_rate=0.01,
                                num_residual_units=5,
                                use_bottleneck=False,
