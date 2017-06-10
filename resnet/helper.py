@@ -1,6 +1,66 @@
 import numpy as np
 import os
-import shutil
+import pandas as pd
+
+
+def load_img_path(data_path, num_img):
+    '''Load images pathes
+    
+    Args:
+        data_path: A folder containing images. e.g, ./home/.../cifar10/
+        num_img: Number of images.
+    Returns:
+        Pathes of images.
+
+        e.g.
+            [./home/.../cifar10/1.png
+            ./home/.../cifar10/2.png
+            ...,
+            ./home/.../cifar10/num_img.png]
+    '''
+
+    img_path_list = []
+    for i in xrange(num_img):
+        img_path = os.path.join(data_path, '%d.png' % (i+1, ))
+        img_path_list.append(img_path)
+    
+    img_path_list = np.asarray(img_path_list)
+    
+    # print(img_path_list)
+    # print(img_path_list.shape)
+
+    return img_path_list
+
+
+def load_labels(labels_file):
+    '''Convert string labels to numberic format.
+
+    Args:
+        labels_file: A file containing labels. e.g, ./home/.../cifar10/trainLabels.csv
+    Returns:
+        Labels. A 1-D numpy array of shape (N, ).
+
+        e.g.
+            [c1, c2, ..., cn]
+    '''
+
+    labels_dict = {'airplane':0, 'automobile':1, 'bird':2, 'cat':3, 'deer':4, 'dog':5, \
+                    'frog':6, 'horse':7, 'ship':8, 'truck':9}
+    
+    # labels = np.genfromtxt(labels_path, delimiter=',')
+    labels = np.recfromcsv(labels_file, delimiter=',')
+    labels = [list(x) for x in labels]
+    labels = np.asarray(labels)
+    labels = labels[:,1].tolist()
+
+    # map to indices
+    labels = [labels_dict[x] for x in labels]
+    label_list = np.asarray(labels)
+
+    # print(label_list)
+    # print(label_list.shape)
+
+    return label_list
 
 
 def split_train_val(X, y, train_size):
@@ -24,11 +84,15 @@ def split_train_val(X, y, train_size):
     train_indices = np.random.choice(total_size, train_size, replace=False)
     X_train = X[train_indices]
     y_train = y[train_indices]
+    # print(X_train.shape)
+    # print(X_train[4])
+    # print(y_train[4])
 
     # split validation data
     val_indices = [i for i in xrange(total_size) if i not in train_indices]
     X_val = X[val_indices]
     y_val = y[val_indices]
+    # print(X_val.shape)
 
     return X_train, y_train, X_val, y_val
 
@@ -48,6 +112,9 @@ def write_to_file(data, file_to_output):
     with open(file_to_output, 'w') as f:
         for item in data.tolist():
             f.write(str(item) + '\n')
+    
+    # print(data)
+    # print(data.shape)
 
 
 def load_data(file_to_read):
@@ -66,60 +133,64 @@ def load_data(file_to_read):
     return data
 
 
-################ ML ####################
+def decode_labels(file_to_read, file_to_output):
+    '''Decode numberic labels to string.
 
-def ml_load_labels(file):
-    labels = list(open(file).readlines())
+    Args:
+        file_to_read: A file of which a line is a label(interger format) for an image.
+        file_to_output: A csv file to output the decoded labels. Having the format bellow
+            
+        e.g.
+            id,label
+            1,deer
+            2,cat
+            ...
+    '''
+
+    labels_dict = {'0':'airplane', '1':'automobile', '2':'bird', '3':'cat', '4':'deer', '5':'dog', 
+        '6':'frog', '7':'horse', '8':'ship', '9':'truck'}
+    
+    labels = list(open(file_to_read).readlines())
     labels = [s.strip() for s in labels]
-    labels = [s.split() for s in labels]
-
-    labels.sort(key=lambda x: x[0])
+    id_labels = [labels_dict[s] for s in labels]
+    # id_labels = np.asarray(id_labels)
     
-    labels_dict = dict(labels)
-    
-    labels = np.asarray(labels, dtype=int)
-    labels = labels[:, 1]
-    
-    return labels, labels_dict
+    idx = pd.Int64Index(np.arange(1, 300001).tolist())
+    id_labels = pd.DataFrame(index = idx, data = {'label': id_labels})
+    id_labels.index.name = 'id'
+    id_labels.to_csv(file_to_output)
 
+    print(id_labels)
 
-def ml_load_ima_path(images_path):
-    file_names = [images_path+s for s in os.listdir(images_path)]
-    
-    file_names.sort()
-    
-    file_names = np.asarray(file_names)
-
-    return file_names
-
-
-def cp_file(file_list, labels_dict):
-    for file_path in file_list:
-        filename = os.path.basename(file_path).split('.')[0]
-
-        label = labels_dict[filename]
-        
-        dst = '/home/yhx/ml/ic-data/' + label
-        shutil.copy(file_path, dst)
 
 
 if __name__ == '__main__':
-    labels_path = '/home/yhx/ml/ic-data/train.label'
-    labels, labels_dict = ml_load_labels(labels_path)
+    test_img_path = '/home/yhx/kaggle/cifar10/test/'
 
-    # images_path = '/home/yhx/ml/ic-data/train/'
-    # image_path_list = ml_load_ima_path(images_path)
+    # train_img_path = '/home/yang/Downloads/FILE/CODE/kaggle/cifar-10/cifar10/train/'
+    # num_img = 50000
+    # labels_path = '/home/yang/Downloads/FILE/CODE/kaggle/cifar-10/cifar10/trainLabels.csv'
+    # num_class = 10
 
-    # X_train, y_train, X_val, y_val = split_train_val(image_path_list, labels, 2250)
-    # write_to_file(X_train, "/home/yhx/ml/ic-data/X_train.txt")
-    # write_to_file(y_train, "/home/yhx/ml/ic-data/y_train.txt")
-    # write_to_file(X_val, "/home/yhx/ml/ic-data/X_val.txt")
-    # write_to_file(y_val, "/home/yhx/ml/ic-data/y_val.txt")
+    # img_path_list = load_img_path(train_img_path, num_img)
+    # label_list = load_labels(labels_path)
 
+    # X_train, y_train, X_val, y_val = split_train_val(img_path_list, label_list, 45000)
 
-    file_list = list(open('/home/yhx/ml/ic-data/X_train.txt').readlines())
-    file_list = [s.strip() for s in file_list]
-    # print(file_list)
+    # write_to_file(X_train, "./cifar10/X_train.txt")
+    # write_to_file(y_train, "./cifar10/y_train.txt")
+    # write_to_file(X_val, "./cifar10/X_val.txt")
+    # write_to_file(y_val, "./cifar10/y_val.txt")
+    
+    ################ test data ################
+    img_path_list = load_img_path(test_img_path, 300000)
+    write_to_file(img_path_list, "./cifar10/test.txt")
 
-    cp_file(file_list, labels_dict)
+    # X_test = load_data('/home/yhx/kaggle/cifar10/test.txt')
+    X_test = load_data('/home/yang/Downloads/FILE/CODE/kaggle/cifar-10/cifar10/test.txt')
+    print(X_test)
+
+    ################ decode labels ################
+    # decode_labels("/home/yang/Downloads/FILE/CODE/kaggle/ws/predict.txt", '/home/yang/Downloads/FILE/CODE/kaggle/ws/predict.csv')
+
 
